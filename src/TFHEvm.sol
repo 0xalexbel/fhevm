@@ -56,11 +56,6 @@ import {DBLib} from "./db/DB.sol";
 //     }
 // }
 
-//ln -s ./node_modules/fhevm/lib/ACL.sol ./src/fhevm/lib/.
-//ln -s ./node_modules/fhevm/lib/ACLAddress.sol ./src/fhevm/lib/.
-
-//"forge-std/=dependencies/forge-std-1.9.3/",
-//"fhevm/lib/=dependencies/forge-fhevm/src/fhevm/lib",
 enum ArithmeticCheckingMode {
     Operands,
     OperandsAndResult

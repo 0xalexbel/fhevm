@@ -10,6 +10,9 @@ import {IRandomGenerator} from "../utils/IRandomGenerator.sol";
 import {DBLib} from "../db/DB.sol";
 import {MathLib} from "../utils/MathLib.sol";
 
+// For gas metering
+import {IForgeStdVmSafe as IVmSafe, forgeStdVmSafeAdd} from "../vm/IForgeStdVmSafe.sol";
+
 /*
     uint8 internal constant ebool_t = 0;
     uint8 internal constant euint4_t = 1;
@@ -28,6 +31,9 @@ import {MathLib} from "../utils/MathLib.sol";
 contract TFHEExecutorDB is Ownable, ITFHEExecutorPlugin {
     // Note: IS_FORGE_TFHE_EXECUTOR_DB() must return true.
     bool public IS_FORGE_TFHE_EXECUTOR_DB = true;
+
+    // For gas metering
+    IVmSafe private constant vm = IVmSafe(forgeStdVmSafeAdd);
 
     enum ArithmeticCheckingMode {
         OperandsOnly,
@@ -201,31 +207,45 @@ contract TFHEExecutorDB is Ownable, ITFHEExecutorPlugin {
     }
 
     function fheAdd(uint256 result, uint256 lhs, uint256 rhs, bytes1 scalarByte) external {
+        vm.pauseGasMetering();
         _fheNumericBinaryOp(MathLib.add, result, lhs, rhs, (scalarByte != 0));
+        vm.resumeGasMetering();
     }
 
     function fheSub(uint256 result, uint256 lhs, uint256 rhs, bytes1 scalarByte) external {
+        vm.pauseGasMetering();
         _fheNumericBinaryOp(MathLib.sub, result, lhs, rhs, (scalarByte != 0));
+        vm.resumeGasMetering();
     }
 
     function fheMul(uint256 result, uint256 lhs, uint256 rhs, bytes1 scalarByte) external {
+        vm.pauseGasMetering();
         _fheNumericBinaryOp(MathLib.mul, result, lhs, rhs, (scalarByte != 0));
+        vm.resumeGasMetering();
     }
 
     function fheDiv(uint256 result, uint256 lhs, uint256 rhs, bytes1 scalarByte) external {
+        vm.pauseGasMetering();
         _fheNumericBinaryOp(MathLib.div, result, lhs, rhs, (scalarByte != 0));
+        vm.resumeGasMetering();
     }
 
     function fheRem(uint256 result, uint256 lhs, uint256 rhs, bytes1 scalarByte) external {
+        vm.pauseGasMetering();
         _fheNumericBinaryOp(MathLib.rem, result, lhs, rhs, (scalarByte != 0));
+        vm.resumeGasMetering();
     }
 
     function fheMin(uint256 result, uint256 lhs, uint256 rhs, bytes1 scalarByte) external {
+        vm.pauseGasMetering();
         _fheNumericBinaryOp(MathLib.min, result, lhs, rhs, (scalarByte != 0));
+        vm.resumeGasMetering();
     }
 
     function fheMax(uint256 result, uint256 lhs, uint256 rhs, bytes1 scalarByte) external {
+        vm.pauseGasMetering();
         _fheNumericBinaryOp(MathLib.max, result, lhs, rhs, (scalarByte != 0));
+        vm.resumeGasMetering();
     }
 
     // ===== Numeric unary op =====
@@ -272,15 +292,19 @@ contract TFHEExecutorDB is Ownable, ITFHEExecutorPlugin {
     }
 
     function fheNeg(uint256 result, uint256 ct) external {
+        vm.pauseGasMetering();
         // typeOf(result) == typeOf(ct)
         _fheNumericUnaryOp(MathLib.neg, result, ct, true /* resultTypeEqCtType */ );
+        vm.resumeGasMetering();
     }
 
     function cast(uint256 result, uint256 ct, bytes1 toType) external {
+        vm.pauseGasMetering();
         DBLib.checkTypeEq(result, uint8(toType));
 
         if (result == ct) {
             _db.checkHandleExist(ct, uint8(toType));
+            vm.resumeGasMetering();
             return;
         }
 
@@ -292,6 +316,7 @@ contract TFHEExecutorDB is Ownable, ITFHEExecutorPlugin {
 
         // typeOf(result) != typeOf(ct)
         _fheNumericUnaryOp(MathLib.cast, result, ct, false /* resultTypeEqCtType */ );
+        vm.resumeGasMetering();
     }
 
     // ===== Bit binary op =====
@@ -345,31 +370,45 @@ contract TFHEExecutorDB is Ownable, ITFHEExecutorPlugin {
     }
 
     function fheBitAnd(uint256 result, uint256 lhs, uint256 rhs, bytes1 scalarByte) external {
+        vm.pauseGasMetering();
         _fheBitBinaryOp(MathLib.and, result, lhs, rhs, (scalarByte != 0));
+        vm.resumeGasMetering();
     }
 
     function fheBitOr(uint256 result, uint256 lhs, uint256 rhs, bytes1 scalarByte) external {
+        vm.pauseGasMetering();
         _fheBitBinaryOp(MathLib.or, result, lhs, rhs, (scalarByte != 0));
+        vm.resumeGasMetering();
     }
 
     function fheBitXor(uint256 result, uint256 lhs, uint256 rhs, bytes1 scalarByte) external {
+        vm.pauseGasMetering();
         _fheBitBinaryOp(MathLib.xor, result, lhs, rhs, (scalarByte != 0));
+        vm.resumeGasMetering();
     }
 
     function fheShl(uint256 result, uint256 lhs, uint256 rhs, bytes1 scalarByte) external {
+        vm.pauseGasMetering();
         _fheBitBinaryOp(MathLib.shl, result, lhs, rhs, (scalarByte != 0));
+        vm.resumeGasMetering();
     }
 
     function fheShr(uint256 result, uint256 lhs, uint256 rhs, bytes1 scalarByte) external {
+        vm.pauseGasMetering();
         _fheBitBinaryOp(MathLib.shr, result, lhs, rhs, (scalarByte != 0));
+        vm.resumeGasMetering();
     }
 
     function fheRotl(uint256 result, uint256 lhs, uint256 rhs, bytes1 scalarByte) external {
+        vm.pauseGasMetering();
         _fheBitBinaryOp(MathLib.rotl, result, lhs, rhs, (scalarByte != 0));
+        vm.resumeGasMetering();
     }
 
     function fheRotr(uint256 result, uint256 lhs, uint256 rhs, bytes1 scalarByte) external {
+        vm.pauseGasMetering();
         _fheBitBinaryOp(MathLib.rotr, result, lhs, rhs, (scalarByte != 0));
+        vm.resumeGasMetering();
     }
 
     // ===== Bit unary op =====
@@ -410,7 +449,9 @@ contract TFHEExecutorDB is Ownable, ITFHEExecutorPlugin {
     }
 
     function fheNot(uint256 result, uint256 ct) external {
+        vm.pauseGasMetering();
         _fheBitUnaryOp(MathLib.not, result, ct);
+        vm.resumeGasMetering();
     }
 
     // ===== Cmp binary op =====
@@ -644,35 +685,51 @@ contract TFHEExecutorDB is Ownable, ITFHEExecutorPlugin {
     }
 
     function fheEq(uint256 result, uint256 lhs, uint256 rhs, bytes1 scalarByte) external {
+        vm.pauseGasMetering();
         _fheCmpBinaryOp(MathLib.eq, MathLib.eqBytes, result, lhs, rhs, (scalarByte != 0x0));
+        vm.resumeGasMetering();
     }
 
     function fheEq(uint256 result, uint256 lhs, bytes memory rhs, bytes1 scalarByte) external {
+        vm.pauseGasMetering();
         _fheBytesCmpBinaryOp(MathLib.eqBytes, result, lhs, rhs, (scalarByte != 0x0));
+        vm.resumeGasMetering();
     }
 
     function fheNe(uint256 result, uint256 lhs, uint256 rhs, bytes1 scalarByte) external {
+        vm.pauseGasMetering();
         _fheCmpBinaryOp(MathLib.ne, MathLib.neBytes, result, lhs, rhs, (scalarByte != 0x0));
+        vm.resumeGasMetering();
     }
 
     function fheNe(uint256 result, uint256 lhs, bytes memory rhs, bytes1 scalarByte) external {
+        vm.pauseGasMetering();
         _fheBytesCmpBinaryOp(MathLib.neBytes, result, lhs, rhs, (scalarByte != 0x0));
+        vm.resumeGasMetering();
     }
 
     function fheGe(uint256 result, uint256 lhs, uint256 rhs, bytes1 scalarByte) external {
+        vm.pauseGasMetering();
         _fheNumericCmpBinaryOp(MathLib.ge, result, lhs, rhs, (scalarByte != 0x0));
+        vm.resumeGasMetering();
     }
 
     function fheGt(uint256 result, uint256 lhs, uint256 rhs, bytes1 scalarByte) external {
+        vm.pauseGasMetering();
         _fheNumericCmpBinaryOp(MathLib.gt, result, lhs, rhs, (scalarByte != 0x0));
+        vm.resumeGasMetering();
     }
 
     function fheLe(uint256 result, uint256 lhs, uint256 rhs, bytes1 scalarByte) external {
+        vm.pauseGasMetering();
         _fheNumericCmpBinaryOp(MathLib.le, result, lhs, rhs, (scalarByte != 0x0));
+        vm.resumeGasMetering();
     }
 
     function fheLt(uint256 result, uint256 lhs, uint256 rhs, bytes1 scalarByte) external {
+        vm.pauseGasMetering();
         _fheNumericCmpBinaryOp(MathLib.lt, result, lhs, rhs, (scalarByte != 0x0));
+        vm.resumeGasMetering();
     }
 
     function verifyCiphertext(
@@ -681,27 +738,36 @@ contract TFHEExecutorDB is Ownable, ITFHEExecutorPlugin {
         address, /*callerAddress*/
         bytes memory, /*inputProof*/
         bytes1 inputType
-    ) external view {
+    ) external {
+        vm.pauseGasMetering();
         _db.checkHandleExist(result, uint8(inputType));
+        vm.resumeGasMetering();
     }
 
     function trivialEncrypt(uint256 result, uint256 pt, bytes1 toType) external {
+        vm.pauseGasMetering();
         _db.checkAndInsert256Bits(result, pt, uint8(toType), true /* trivial */ );
+        vm.resumeGasMetering();
     }
 
     function trivialEncrypt(uint256 result, bytes memory pt, bytes1 toType) external {
+        vm.pauseGasMetering();
         _db.checkAndInsertBytes(result, pt, uint8(toType), true /* trivial */ );
+        vm.resumeGasMetering();
     }
 
     function fheIfThenElse(uint256 result, uint256 control, uint256 ifTrue, uint256 ifFalse) external {
+        vm.pauseGasMetering();
         DBLib.RecordMeta memory meta =
             _db.ifCtThenCtElseCt(result, control, ifTrue, ifFalse, (_throwIfArithmeticError > 0));
 
         // Must be the very last function call
         __exit_checkArithmetic(result, meta.arithmeticFlags);
+        vm.resumeGasMetering();
     }
 
     function fheRand(uint256 result, bytes1 randType) external {
+        vm.pauseGasMetering();
         uint8 typeCt = uint8(randType);
 
         DBLib.checkTypeEq(result, typeCt);
@@ -710,9 +776,11 @@ contract TFHEExecutorDB is Ownable, ITFHEExecutorPlugin {
         (, uint256 random) = MathLib.cast(_randomGenerator.randomUint(), typeCt);
 
         _db.checkAndInsert256Bits(result, random, typeCt, false /* trivial */ );
+        vm.resumeGasMetering();
     }
 
     function fheRandBounded(uint256 result, uint256 upperBound, bytes1 randType) external {
+        vm.pauseGasMetering();
         uint8 typeCt = uint8(randType);
 
         DBLib.checkTypeEq(result, typeCt);
@@ -725,13 +793,18 @@ contract TFHEExecutorDB is Ownable, ITFHEExecutorPlugin {
         }
 
         _db.checkAndInsert256Bits(result, random, typeCt, false /* trivial */ );
+        vm.resumeGasMetering();
     }
 
     function insertEncrypted256Bits(uint256 handle, uint256 valuePt, uint8 typePt) external {
+        vm.pauseGasMetering();
         _db.checkAndInsert256Bits(handle, valuePt, typePt, false /* trivial */ );
+        vm.resumeGasMetering();
     }
 
     function insertEncryptedBytes(uint256 handle, bytes memory valuePt, uint8 typePt) external {
+        vm.pauseGasMetering();
         _db.checkAndInsertBytes(handle, valuePt, typePt, false /* trivial */ );
+        vm.resumeGasMetering();
     }
 }

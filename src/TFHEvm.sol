@@ -164,11 +164,12 @@ library TFHEvm {
 
     function createEncryptedInput(address contractAddress, address userAddress)
         internal
-        view
         returns (EncryptedInput memory input)
     {
+        vm.pauseGasMetering();
         TFHEvmStorage storage $ = __get();
-        return $.createEncryptedInput(contractAddress, userAddress);
+        input = $.createEncryptedInput(contractAddress, userAddress);
+        vm.resumeGasMetering();
     }
 
     /// Helper: encrypts a single bool value and returns the handle+inputProof pair

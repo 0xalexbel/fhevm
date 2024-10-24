@@ -1,0 +1,6 @@
+forge-std/=dependencies/forge-std-1.9.3/
+forge-std-1.9.3/=dependencies/forge-std-1.9.3/
+fhevm/lib/=lib/
+fhevm/gateway/=gateway/
+fhevm/payment/=payment/
+@openzeppelin/=node_modules/@openzeppelin/
